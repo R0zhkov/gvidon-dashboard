@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+      rel="stylesheet"
+    />
+    <meta charset="utf-8" />
+    <title>Ожидают</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        background: #000;
+        color: #fff;
+        font-family: "Open Sans", sans-serif;
+        font-weight: 300;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 12px;
+      }
+      .switch {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      .switch button {
+        padding: 6px 12px;
+        font-size: 14px;
+        background: #333;
+        color: #fff;
+        border: 1px solid #666;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .switch button.active {
+        background: #555;
+        border-color: #999;
+      }
+      .main-number {
+        font-size: min(50vw, 50vh);
+        font-weight: 800;
+        line-height: 1;
+        text-align: center;
+        text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+      }
+      .metrics {
+        display: flex;
+        justify-content: center;
+        gap: 24px;
+      }
+      .metric {
+        text-align: center;
+      }
+      .metric-value {
+        font-size: min(8vw, 8vh);
+        font-weight: 600;
+      }
+      .metric-label {
+        font-size: min(2.8vw, 2.8vh);
+        opacity: 0.7;
+        margin-top: 4px;
+        white-space: nowrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="switch">
+      <button id="today" class="active">Сегодня</button>
+      <button id="tomorrow">Завтра</button>
+    </div>
+
+    <div class="main-number" id="waiting">--</div>
+
+    <div class="metrics" id="metricsContainer"></div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const todayBtn = document.getElementById("today");
+        const tomorrowBtn = document.getElementById("tomorrow");
+        const waitingEl = document.getElementById("waiting");
+        const metricsContainer = document.getElementById("metricsContainer");
+
+        let selected = "today";
+
+        function setActive(btnId) {
+          todayBtn.classList.toggle("active", btnId === "today");
+          tomorrowBtn.classList.toggle("active", btnId === "tomorrow");
+        }
+
+        function renderMetrics(bookings5to7, bookings8plus) {
+          metricsContainer.innerHTML = "";
+
+          if (bookings5to7 > 0) {
+            const el = document.createElement("div");
+            el.className = "metric";
+            el.innerHTML = `
+              <div class="metric-value">${bookings5to7}</div>
+              <div class="metric-label">5–7 гостей</div>
+            `;
+            metricsContainer.appendChild(el);
+          }
+
+          if (bookings8plus > 0) {
+            const el = document.createElement("div");
+            el.className = "metric";
+            el.innerHTML = `
+              <div class="metric-value">${bookings8plus}</div>
+              <div class="metric-label">8+ гостей</div>
+            `;
+            metricsContainer.appendChild(el);
+          }
+        }
+
+        async function fetchData() {
+          try {
+            const res = await fetch(`/api/stats?date=${selected}`);
+            const data = await res.json();
+            waitingEl.textContent = data.waiting || 0;
+            renderMetrics(data.bookings5to7 || 0, data.bookings8plus || 0);
+          } catch (err) {
+            waitingEl.textContent = "—";
+            renderMetrics(0, 0);
+          }
+        }
+
+        todayBtn.addEventListener("click", () => {
+          selected = "today";
+          setActive("today");
+          fetchData();
+        });
+
+        tomorrowBtn.addEventListener("click", () => {
+          selected = "tomorrow";
+          setActive("tomorrow");
+          fetchData();
+        });
+
+        setActive("today");
+        fetchData();
+        setInterval(fetchData, 60000);
+      });
+    </script>
+  </body>
+</html>

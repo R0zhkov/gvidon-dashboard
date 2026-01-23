@@ -154,6 +154,15 @@
         }
       }
 
+      @media (min-width: 769px) and (max-width: 1199px) {
+        .hourly-cell br {
+          display: none;
+        }
+        .hourly-cell br::before {
+          content: " ";
+        }
+      }
+
       @media (min-width: 1200px) {
         .hourly-cell {
           font-size: 22px;
@@ -165,15 +174,12 @@
         .hourly-cell br {
           display: none;
         }
+        .hourly-cell br::before {
+          content: " ";
+        }
         .switch button {
           font-size: 22px;
           padding: 12px 24px;
-        }
-      }
-
-      @media (min-width: 769px) and (max-width: 1199px) {
-        .hourly-cell br {
-          display: none;
         }
       }
 

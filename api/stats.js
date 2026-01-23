@@ -1,6 +1,6 @@
 const LOGIN = process.env.MY_SITE_LOGIN;
 const PASSWORD = process.env.MY_SITE_PASSWORD;
-const POINT_ID = process.env.POINT_ID || "125021";
+const POINT_ID = process.env.POINT_ID || "125014";
 
 const CACHE = {};
 const CACHE_TTL = 2 * 60 * 1000;

@@ -92,19 +92,14 @@
         align-items: center;
       }
 
-      /* ТАБЛИЦА */
-      .hourly-table {
-        display: grid;
-        grid-template-columns: auto 1fr 1fr;
-        gap: 0 16px;
-        width: fit-content;
-        max-width: 100%;
+      .hourly-row {
         font-size: min(4vw, 4vh);
-      }
-
-      .hourly-table > div {
+        padding: 6px 0;
+        text-align: center;
         white-space: nowrap;
-        padding: 4px 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
       }
 
       @media (max-width: 768px) {
@@ -114,9 +109,8 @@
         .metric-label {
           font-size: 13px;
         }
-        .hourly-table {
+        .hourly-row {
           font-size: 15px;
-          gap: 0 12px;
         }
       }
     </style>
@@ -218,16 +212,9 @@
           }
 
           const isMobile = window.innerWidth <= 768;
-
-          // Заголовки не нужны, но создаём три колонки
-          let times = "";
-          let bookings = "";
-          let larges = "";
+          let html = "";
 
           for (const h of hourlyData) {
-            // Время
-            times += `<div>${h.hour}:00</div>`;
-
             // Брони
             let bookingText;
             if (isMobile) {
@@ -237,25 +224,19 @@
                 h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
               bookingText = `${h.count} ${word} (${h.guests} гостей)`;
             }
-            bookings += `<div>${bookingText}</div>`;
 
-            // Крупные
+            // Крупные группы
             let largeText = h.largeInfo;
             if (isMobile && largeText !== "–") {
               largeText = largeText
                 .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
                 .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
             }
-            larges += `<div>${largeText}</div>`;
-          }
 
-          container.innerHTML = `
-            <div class="hourly-table">
-              ${times}
-              ${bookings}
-              ${larges}
-            </div>
-          `;
+            // ЕДИНАЯ СТРОКА С ТОЧКАМИ
+            html += `<div class="hourly-row">${h.hour}:00 • ${bookingText} • ${largeText}</div>`;
+          }
+          container.innerHTML = html;
         }
 
         mainView.addEventListener("click", () => {

@@ -57,15 +57,14 @@
         text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
       }
 
+      /* Метрики изначально скрыты */
       .metrics {
-        display: flex;
+        display: none;
         justify-content: center;
         gap: 24px;
-        transition: opacity 0.3s ease;
       }
-      .metrics.hidden {
-        opacity: 0;
-        pointer-events: none;
+      .metrics.visible {
+        display: flex;
       }
 
       .metric {
@@ -102,17 +101,15 @@
         gap: 8px;
         width: fit-content;
         max-width: 100%;
+        /* Вся строка — по левому краю внутри центрированного блока */
+        justify-content: flex-start;
       }
 
       .time,
       .main,
       .large {
         white-space: nowrap;
-      }
-
-      .time {
-        text-align: right;
-        font-weight: 600;
+        text-align: left;
       }
 
       .separator {
@@ -166,8 +163,6 @@
         let selected = "today";
         let currentView = "total";
 
-        metricsContainer.classList.add("hidden");
-
         function setActive(btnId) {
           todayBtn.classList.toggle("active", btnId === "today");
           tomorrowBtn.classList.toggle("active", btnId === "tomorrow");
@@ -175,6 +170,8 @@
 
         function renderMetrics(bookings5to7, bookings8plus) {
           metricsContainer.innerHTML = "";
+          let hasContent = false;
+
           if (bookings5to7 > 0) {
             const el = document.createElement("div");
             el.className = "metric";
@@ -183,6 +180,7 @@
               <div class="metric-label">5–7 гостей</div>
             `;
             metricsContainer.appendChild(el);
+            hasContent = true;
           }
           if (bookings8plus > 0) {
             const el = document.createElement("div");
@@ -192,21 +190,35 @@
               <div class="metric-label">8+ гостей</div>
             `;
             metricsContainer.appendChild(el);
+            hasContent = true;
+          }
+
+          // Показываем метрики ТОЛЬКО если есть данные
+          if (hasContent && currentView === "total") {
+            metricsContainer.classList.add("visible");
+          } else {
+            metricsContainer.classList.remove("visible");
           }
         }
 
         function showTotalView() {
           document.getElementById("mainView").style.display = "flex";
           document.getElementById("hourlyView").style.display = "none";
-          metricsContainer.classList.remove("hidden");
           currentView = "total";
+          // Перерисуем метрики, чтобы они появились
+          if (window.currentData) {
+            renderMetrics(
+              window.currentData.bookings5to7 || 0,
+              window.currentData.bookings8plus || 0
+            );
+          }
         }
 
         function showHourlyView(hourlyData) {
           document.getElementById("mainView").style.display = "none";
           document.getElementById("hourlyView").style.display = "flex";
-          metricsContainer.classList.add("hidden");
           currentView = "hourly";
+          metricsContainer.classList.remove("visible");
 
           const container = document.getElementById("hourlyView");
           if (!hourlyData || hourlyData.length === 0) {
@@ -219,7 +231,6 @@
           let html = "";
 
           for (const h of hourlyData) {
-            // Брони
             let bookingText;
             if (isMobile) {
               bookingText = `${h.count} бр. (${h.guests})`;
@@ -229,7 +240,6 @@
               bookingText = `${h.count} ${word} (${h.guests} гостей)`;
             }
 
-            // Крупные группы
             let largeText = h.largeInfo;
             if (isMobile && largeText !== "–") {
               largeText = largeText
@@ -264,20 +274,16 @@
             const data = await res.json();
 
             waitingEl.textContent = data.waiting || 0;
-            renderMetrics(data.bookings5to7 || 0, data.bookings8plus || 0);
-
             window.currentData = data;
+            renderMetrics(data.bookings5to7 || 0, data.bookings8plus || 0);
 
             if (currentView === "hourly") {
               showHourlyView(data.hourly);
-            } else {
-              setTimeout(() => {
-                metricsContainer.classList.remove("hidden");
-              }, 100);
             }
           } catch (err) {
             waitingEl.textContent = "—";
-            renderMetrics(0, 0);
+            window.currentData = null;
+            metricsContainer.classList.remove("visible");
             if (currentView === "hourly") {
               document.getElementById("hourlyView").innerHTML =
                 '<div style="text-align:center; opacity:0.6;">Ошибка</div>';

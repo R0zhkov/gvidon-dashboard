@@ -18,7 +18,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Авторизация
     const loginRes = await fetch(
       `https://cabinet.clientomer.ru/${POINT_ID}/jlogin`,
       {
@@ -38,7 +37,6 @@ export default async function handler(req, res) {
     const cookie = loginRes.headers.get("set-cookie")?.split(";")[0];
     if (!cookie) throw new Error("Не получена кука сессии");
 
-    // Запрос данных
     const timestamp = Date.now();
     const apiUrl = `https://cabinet.clientomer.ru/${POINT_ID}/reserves.api.guestsreserves?timestamp=${timestamp}`;
     const apiRes = await fetch(apiUrl, {
@@ -53,7 +51,6 @@ export default async function handler(req, res) {
     const data = await apiRes.json();
     if (data.status !== "success") throw new Error("API вернул ошибку");
 
-    // Определяем целевую дату (МСК)
     const nowMSK = new Date(Date.now() + 3 * 60 * 60 * 1000);
     const targetDate = new Date(nowMSK);
     if (mode === "tomorrow") {
@@ -61,7 +58,6 @@ export default async function handler(req, res) {
     }
     const targetDateStr = targetDate.toISOString().split("T")[0];
 
-    // Агрегация
     let totalWaiting = 0;
     let bookings5to7 = 0;
     let bookings8plus = 0;
@@ -99,7 +95,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // Формируем список часов
     const sortedHours = Object.keys(hourly).sort();
     const hourlyList = sortedHours.map((h) => {
       const hData = hourly[h];
@@ -128,7 +123,7 @@ export default async function handler(req, res) {
             )} (5–7)`
           );
         }
-        largeInfo = parts.join(", ");
+        largeInfo = parts.join(" / ");
       }
 
       return {
@@ -154,7 +149,6 @@ export default async function handler(req, res) {
   }
 }
 
-// Вспомогательная функция для склонения
 function decline(number, one, few, many) {
   let n = Math.abs(number) % 100;
   let n1 = n % 10;

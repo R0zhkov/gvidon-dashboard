@@ -58,7 +58,6 @@
         margin-bottom: 8px;
       }
 
-      /* Метрики — увеличены и чуть приподняты */
       .metrics {
         display: flex;
         justify-content: center;
@@ -75,7 +74,7 @@
         text-align: center;
       }
       .metric-value {
-        font-size: min(12vw, 12vh); /* +150% относительно 8vw */
+        font-size: min(12vw, 12vh);
         font-weight: 700;
         line-height: 1;
       }
@@ -86,7 +85,6 @@
         white-space: nowrap;
       }
 
-      /* Таблица почасовки */
       #hourlyView {
         display: none;
         overflow-y: auto;
@@ -103,9 +101,10 @@
         align-items: center;
         padding: 6px 0;
         font-size: min(4vw, 4vh);
-        gap: 10px;
+        gap: 12px;
         width: 100%;
-        max-width: 400px;
+        max-width: 520px;
+        margin: 0 auto;
       }
 
       .time {
@@ -118,19 +117,25 @@
         flex: 1;
         text-align: center;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
       .large {
-        flex: 0 0 110px;
+        flex: 0 0 220px;
         text-align: left;
         white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
       }
 
-      @media (max-width: 480px) {
+      @media (max-width: 768px) {
+        .main {
+          flex: 0 0 90px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .large {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .metric-value {
           font-size: 18px;
         }
@@ -139,6 +144,7 @@
         }
         .hourly-row {
           font-size: 15px;
+          max-width: 360px;
         }
       }
     </style>
@@ -188,18 +194,18 @@
             const el = document.createElement("div");
             el.className = "metric";
             el.innerHTML = `
-          <div class="metric-value">${bookings5to7}</div>
-          <div class="metric-label">5–7 гостей</div>
-        `;
+              <div class="metric-value">${bookings5to7}</div>
+              <div class="metric-label">5–7 гостей</div>
+            `;
             metricsContainer.appendChild(el);
           }
           if (bookings8plus > 0) {
             const el = document.createElement("div");
             el.className = "metric";
             el.innerHTML = `
-          <div class="metric-value">${bookings8plus}</div>
-          <div class="metric-label">8+ гостей</div>
-        `;
+              <div class="metric-value">${bookings8plus}</div>
+              <div class="metric-label">8+ гостей</div>
+            `;
             metricsContainer.appendChild(el);
           }
         }
@@ -224,32 +230,37 @@
             return;
           }
 
+          const isMobile = window.innerWidth <= 768;
           let html = "";
-          for (const h of hourlyData) {
-            // Формат: "3 бр. (12)"
-            const bookingShort = `${h.count} бр. (${h.guests})`;
 
-            // Преобразуем:
-            // "1 компания (8+)" → "8+: 1"
-            // "2 компании (5–7)" → "5–7: 2"
-            let largeShort = h.largeInfo;
-            if (largeShort !== "–") {
-              // Заменяем полные фразы на компактные
-              largeShort = largeShort
-                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "8+: $1")
-                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "5–7: $1");
+          for (const h of hourlyData) {
+            // Брони
+            let bookingText;
+            if (isMobile) {
+              bookingText = `${h.count} бр. (${h.guests})`;
+            } else {
+              const word =
+                h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
+              bookingText = `${h.count} ${word} (${h.guests} гостей)`;
+            }
+
+            // Крупные группы
+            let largeText = h.largeInfo;
+            if (isMobile && largeText !== "–") {
+              largeText = largeText
+                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
+                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
             }
 
             html += `<div class="hourly-row">
-          <span class="time">${h.hour}:00</span>
-          <span class="main">${bookingShort}</span>
-          <span class="large">${largeShort}</span>
-        </div>`;
+              <span class="time">${h.hour}:00</span>
+              <span class="main">${bookingText}</span>
+              <span class="large">${largeText}</span>
+            </div>`;
           }
           container.innerHTML = html;
         }
 
-        // Переключение кликом
         mainView.addEventListener("click", () => {
           if (window.currentData && window.currentData.hourly) {
             showHourlyView(window.currentData.hourly);
@@ -260,7 +271,6 @@
           showTotalView();
         });
 
-        // Загрузка данных
         async function fetchData() {
           try {
             const res = await fetch(`/api/stats?date=${selected}`);
@@ -284,7 +294,6 @@
           }
         }
 
-        // Обработчики кнопок
         todayBtn.addEventListener("click", () => {
           selected = "today";
           setActive("today");
@@ -297,7 +306,6 @@
           fetchData();
         });
 
-        // Инициализация
         setActive("today");
         fetchData();
         setInterval(fetchData, 60000);

@@ -55,21 +55,19 @@
         line-height: 1;
         text-align: center;
         text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
-        margin-bottom: 8px;
       }
 
       .metrics {
         display: flex;
         justify-content: center;
         gap: 24px;
-        transition: opacity 0.3s ease, transform 0.3s ease;
-        transform: translateY(-8px);
+        transition: opacity 0.3s ease;
       }
       .metrics.hidden {
         opacity: 0;
         pointer-events: none;
-        transform: translateY(-8px) scale(0.95);
       }
+
       .metric {
         text-align: center;
       }
@@ -101,41 +99,27 @@
         align-items: center;
         padding: 6px 0;
         font-size: min(4vw, 4vh);
-        gap: 12px;
-        width: 100%;
-        max-width: 520px;
-        margin: 0 auto;
+        gap: 8px;
+        width: fit-content;
+        max-width: 100%;
+      }
+
+      .time,
+      .main,
+      .large {
+        white-space: nowrap;
       }
 
       .time {
-        flex: 0 0 60px;
         text-align: right;
         font-weight: 600;
       }
 
-      .main {
-        flex: 1;
-        text-align: center;
-        white-space: nowrap;
-      }
-
-      .large {
-        flex: 0 0 220px;
-        text-align: left;
-        white-space: nowrap;
+      .separator {
+        opacity: 0.6;
       }
 
       @media (max-width: 768px) {
-        .main {
-          flex: 0 0 90px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .large {
-          flex: 1;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
         .metric-value {
           font-size: 18px;
         }
@@ -144,7 +128,6 @@
         }
         .hourly-row {
           font-size: 15px;
-          max-width: 360px;
         }
       }
     </style>
@@ -182,6 +165,8 @@
 
         let selected = "today";
         let currentView = "total";
+
+        metricsContainer.classList.add("hidden");
 
         function setActive(btnId) {
           todayBtn.classList.toggle("active", btnId === "today");
@@ -254,7 +239,9 @@
 
             html += `<div class="hourly-row">
               <span class="time">${h.hour}:00</span>
+              <span class="separator">•</span>
               <span class="main">${bookingText}</span>
+              <span class="separator">•</span>
               <span class="large">${largeText}</span>
             </div>`;
           }
@@ -283,6 +270,10 @@
 
             if (currentView === "hourly") {
               showHourlyView(data.hourly);
+            } else {
+              setTimeout(() => {
+                metricsContainer.classList.remove("hidden");
+              }, 100);
             }
           } catch (err) {
             waitingEl.textContent = "—";

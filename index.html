@@ -84,24 +84,50 @@
       #hourlyView {
         display: none;
         overflow-y: auto;
-        padding: 0 8px;
+        padding: 8px;
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
+        width: 100%;
+      }
+
+      /* НОВЫЕ СТИЛИ ДЛЯ ТАБЛИЦЫ */
+      .hourly-table {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        border-collapse: collapse;
       }
 
       .hourly-row {
-        font-size: min(4vw, 4vh);
-        padding: 6px 0;
-        text-align: center;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
+        display: table-row;
       }
 
+      .hourly-cell {
+        display: table-cell;
+        padding: 8px 12px;
+        vertical-align: middle;
+        font-size: min(3.8vw, 18px);
+        line-height: 1.2;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .hourly-cell:first-child {
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+        white-space: nowrap;
+        padding-left: 0;
+      }
+
+      .hourly-cell:nth-child(2) {
+        text-align: center;
+        min-width: 120px;
+      }
+
+      .hourly-cell:last-child {
+        text-align: left;
+        padding-right: 0;
+      }
+
+      /* Адаптивность для мобильных */
       @media (max-width: 768px) {
         .metric-value {
           font-size: 18px;
@@ -109,9 +135,70 @@
         .metric-label {
           font-size: 13px;
         }
-        .hourly-row {
-          font-size: 15px;
+
+        .hourly-table {
+          font-size: 14px;
         }
+
+        .hourly-cell {
+          padding: 6px 8px;
+          font-size: 14px;
+        }
+
+        .hourly-cell:nth-child(2) {
+          min-width: 100px;
+        }
+
+        /* Компактный вид для мобильных */
+        .mobile-compact {
+          display: none;
+        }
+      }
+
+      /* Для десктопов */
+      @media (min-width: 769px) {
+        .hourly-cell {
+          font-size: 16px;
+          padding: 10px 16px;
+        }
+
+        .hourly-cell:nth-child(2) {
+          min-width: 150px;
+        }
+
+        .hourly-cell:first-child {
+          width: 100px;
+        }
+      }
+
+      /* Пустая строка */
+      .hourly-empty {
+        text-align: center;
+        padding: 40px 20px;
+        opacity: 0.6;
+        font-size: 16px;
+      }
+
+      /* Заголовки колонок */
+      .hourly-header {
+        display: table-header-group;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .hourly-header .hourly-cell {
+        font-weight: 600;
+        font-size: min(3vw, 14px);
+        color: rgba(255, 255, 255, 0.7);
+        padding: 12px 12px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .hourly-header .hourly-cell:first-child {
+        padding-left: 0;
+      }
+
+      .hourly-header .hourly-cell:last-child {
+        padding-right: 0;
       }
     </style>
   </head>
@@ -200,42 +287,64 @@
 
         function showHourlyView(hourlyData) {
           document.getElementById("mainView").style.display = "none";
-          document.getElementById("hourlyView").style.display = "flex";
+          document.getElementById("hourlyView").style.display = "block";
           currentView = "hourly";
           metricsContainer.classList.remove("visible");
 
           const container = document.getElementById("hourlyView");
           if (!hourlyData || hourlyData.length === 0) {
-            container.innerHTML =
-              '<div style="text-align:center; opacity:0.6;">Нет броней</div>';
+            container.innerHTML = '<div class="hourly-empty">Нет броней</div>';
             return;
           }
 
           const isMobile = window.innerWidth <= 768;
-          let html = "";
+          let html = `
+            <table class="hourly-table">
+              <thead class="hourly-header">
+                <tr>
+                  <td class="hourly-cell">Время</td>
+                  <td class="hourly-cell">Количество</td>
+                  <td class="hourly-cell">Большие компании</td>
+                </tr>
+              </thead>
+              <tbody>`;
 
           for (const h of hourlyData) {
-            // Брони
-            let bookingText;
+            // Форматирование времени
+            const time = `${h.hour}:00`;
+
+            // Форматирование количества
+            let countText;
             if (isMobile) {
-              bookingText = `${h.count} бр. (${h.guests})`;
+              countText = `${h.count} бр. (${h.guests})`;
             } else {
               const word =
                 h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
-              bookingText = `${h.count} ${word} (${h.guests} гостей)`;
+              countText = `${h.count} ${word}<br><span style="opacity:0.7">${h.guests} гостей</span>`;
             }
 
-            // Крупные группы
+            // Форматирование больших компаний
             let largeText = h.largeInfo;
-            if (isMobile && largeText !== "–") {
-              largeText = largeText
-                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
-                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
+            if (isMobile) {
+              if (largeText !== "–") {
+                largeText = largeText
+                  .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
+                  .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
+              }
+            } else {
+              // Для десктопов можно показывать полный текст
+              largeText = largeText.replace(/\(/g, "<br>(");
             }
 
-            // ЕДИНАЯ СТРОКА С ТОЧКАМИ
-            html += `<div class="hourly-row">${h.hour}:00 • ${bookingText} • ${largeText}</div>`;
+            html += `
+              <tr class="hourly-row">
+                <td class="hourly-cell">${time}</td>
+                <td class="hourly-cell">${countText}</td>
+                <td class="hourly-cell">${largeText}</td>
+              </tr>`;
           }
+
+          html += `</tbody></table>`;
           container.innerHTML = html;
         }
 
@@ -267,7 +376,7 @@
             metricsContainer.classList.remove("visible");
             if (currentView === "hourly") {
               document.getElementById("hourlyView").innerHTML =
-                '<div style="text-align:center; opacity:0.6;">Ошибка</div>';
+                '<div class="hourly-empty">Ошибка загрузки</div>';
             }
           }
         }
@@ -287,6 +396,17 @@
         setActive("today");
         fetchData();
         setInterval(fetchData, 60000);
+
+        // Обработчик изменения размера окна для адаптивности
+        window.addEventListener("resize", () => {
+          if (
+            currentView === "hourly" &&
+            window.currentData &&
+            window.currentData.hourly
+          ) {
+            showHourlyView(window.currentData.hourly);
+          }
+        });
       });
     </script>
   </body>

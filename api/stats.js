@@ -80,20 +80,57 @@ export default async function handler(req, res) {
         if (hourPart) {
           const hour = hourPart.substring(0, 2);
           if (!hourly[hour]) {
-            hourly[hour] = { count: 0, guests: 0 };
+            hourly[hour] = {
+              count: 0,
+              guests: 0,
+              groups5to7: 0,
+              groups8plus: 0
+            };
           }
           hourly[hour].count += 1;
           hourly[hour].guests += guests;
+          if (guests >= 5 && guests <= 7) hourly[hour].groups5to7 += 1;
+          if (guests >= 8) hourly[hour].groups8plus += 1;
         }
       }
     }
 
     const sortedHours = Object.keys(hourly).sort();
-    const hourlyList = sortedHours.map((h) => ({
-      hour: h,
-      count: hourly[h].count,
-      guests: hourly[h].guests
-    }));
+    const hourlyList = sortedHours.map((h) => {
+      const hData = hourly[h];
+      let largeInfo = "–";
+      const totalLarge = hData.groups5to7 + hData.groups8plus;
+      if (totalLarge > 0) {
+        const parts = [];
+        if (hData.groups8plus > 0) {
+          parts.push(
+            `${hData.groups8plus} ${decline(
+              hData.groups8plus,
+              "компания",
+              "компании",
+              "компаний"
+            )} (8+)`
+          );
+        }
+        if (hData.groups5to7 > 0) {
+          parts.push(
+            `${hData.groups5to7} ${decline(
+              hData.groups5to7,
+              "компания",
+              "компании",
+              "компаний"
+            )} (5–7)`
+          );
+        }
+        largeInfo = parts.join(", ");
+      }
+      return {
+        hour: h,
+        count: hData.count,
+        guests: hData.guests,
+        largeInfo
+      };
+    });
 
     const result = {
       waiting: totalWaiting,
@@ -109,4 +146,14 @@ export default async function handler(req, res) {
     console.error("API error:", err.message);
     res.status(500).json({ error: err.message.substring(0, 200) });
   }
+}
+
+// Вспомогательная функция для склонения
+function decline(number, one, few, many) {
+  let n = Math.abs(number) % 100;
+  let n1 = n % 10;
+  if (n > 10 && n < 20) return many;
+  if (n1 > 1 && n1 < 5) return few;
+  if (n1 == 1) return one;
+  return many;
 }

@@ -85,6 +85,14 @@
         padding: 4px 0;
         font-size: min(4vw, 4vh);
       }
+      .hourly-row {
+        font-size: min(3.8vw, 3.8vh);
+        padding: 4px 0;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     </style>
   </head>
   <body>
@@ -119,7 +127,7 @@
         const hourlyView = document.getElementById("hourlyView");
 
         let selected = "today";
-        let currentView = "total"; // "total" or "hourly"
+        let currentView = "total";
 
         function setActive(btnId) {
           todayBtn.classList.toggle("active", btnId === "today");
@@ -132,18 +140,18 @@
             const el = document.createElement("div");
             el.className = "metric";
             el.innerHTML = `
-              <div class="metric-value">${bookings5to7}</div>
-              <div class="metric-label">5–7 гостей</div>
-            `;
+          <div class="metric-value">${bookings5to7}</div>
+          <div class="metric-label">5–7 гостей</div>
+        `;
             metricsContainer.appendChild(el);
           }
           if (bookings8plus > 0) {
             const el = document.createElement("div");
             el.className = "metric";
             el.innerHTML = `
-              <div class="metric-value">${bookings8plus}</div>
-              <div class="metric-label">8+ гостей</div>
-            `;
+          <div class="metric-value">${bookings8plus}</div>
+          <div class="metric-label">8+ гостей</div>
+        `;
             metricsContainer.appendChild(el);
           }
         }
@@ -168,7 +176,10 @@
 
           let html = "";
           for (const h of hourlyData) {
-            html += `<div class="hourly-row"><span>${h.hour}:00</span><span>${h.count} / ${h.guests}</span></div>`;
+            // Склонение слова "бронь"
+            const bookingWord =
+              h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
+            html += `<div class="hourly-row">${h.hour}:00 • ${h.count} ${bookingWord} (${h.guests} гостей) • ${h.largeInfo}</div>`;
           }
           container.innerHTML = html;
         }

@@ -9,10 +9,7 @@
     />
     <meta charset="utf-8" />
     <title>Ожидают</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       * {
         margin: 0;
@@ -33,35 +30,30 @@
         font-weight: 300;
         display: flex;
         flex-direction: column;
-        padding: 1vh;
+        padding: 12px;
       }
-
       .switch {
         display: flex;
         gap: 8px;
         justify-content: center;
-        margin-bottom: 1vh;
+        margin-bottom: 10px;
         flex-shrink: 0;
-        height: 6vh;
-        min-height: 35px;
       }
       .switch button {
-        padding: 0 16px;
-        font-size: clamp(12px, 2vh, 18px);
+        padding: 10px 20px;
+        font-size: 18px;
         background: #333;
         color: #fff;
         border: 1px solid #666;
         border-radius: 4px;
         cursor: pointer;
-        height: 100%;
       }
       .switch button.active {
         background: #555;
         border-color: #999;
       }
-
       .main-number {
-        font-size: min(40vw, 55vh);
+        font-size: min(55vw, 55vh);
         font-weight: 800;
         line-height: 1;
         text-align: center;
@@ -71,11 +63,8 @@
       .metrics {
         display: none;
         justify-content: center;
-        gap: 15px;
+        gap: 24px;
         flex-shrink: 0;
-        height: auto;
-        min-height: 8vh;
-        padding-bottom: 1vh;
       }
       .metrics.visible {
         display: flex;
@@ -83,29 +72,17 @@
 
       .metric {
         text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
       }
       .metric-value {
-        font-size: clamp(24px, 6vh, 48px);
+        font-size: min(15vw, 15vh);
         font-weight: 700;
         line-height: 1;
       }
       .metric-label {
-        font-size: clamp(10px, 2vh, 14px);
+        font-size: min(4vw, 4vh);
         opacity: 0.75;
-        margin-top: 2px;
+        margin-top: 4px;
         white-space: nowrap;
-      }
-
-      #mainView {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        cursor: pointer;
       }
 
       #hourlyView {
@@ -113,111 +90,80 @@
         flex: 1;
         width: 100%;
         overflow: hidden;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
+        min-height: 0;
       }
 
-      /* Стили для таблицы - компактные */
+      .table-container {
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        display: flex;
+        justify-content: center;
+        padding: 8px;
+      }
+
       .hourly-table {
-        width: auto;
+        width: 100%;
+        max-width: 1400px;
         border-collapse: collapse;
-        table-layout: fixed;
-        max-height: 85vh;
       }
 
       .hourly-row {
-        height: auto;
+        display: table-row;
       }
 
       .hourly-cell {
-        padding: 0.8vh 1vw;
+        display: table-cell;
+        padding: 8px 12px;
         vertical-align: middle;
-        line-height: 1.2;
+        font-size: clamp(14px, 2.2vw, 20px);
+        line-height: 1.3;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        white-space: nowrap;
       }
 
       .hourly-cell:first-child {
         font-weight: 700;
         color: rgba(255, 255, 255, 0.95);
-        text-align: right;
-        padding-right: 2vw;
-        width: auto;
-        font-size: clamp(14px, 3vh, 20px);
-      }
-
-      .hourly-cell:nth-child(2) {
-        text-align: center;
-        width: auto;
-        font-weight: 500;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: clamp(12px, 2.5vh, 18px);
+        white-space: nowrap;
+        text-align: left;
+        padding-right: 20px;
       }
 
       .hourly-cell:last-child {
         text-align: left;
-        padding-left: 2vw;
-        width: auto;
+        color: rgba(255, 255, 255, 0.85);
       }
 
-      .company-group {
-        display: block;
-        line-height: 1.3;
-        white-space: nowrap;
-        font-size: clamp(10px, 2vh, 16px);
+      @media (max-width: 768px) {
+        .hourly-cell {
+          font-size: 14px;
+          padding: 6px 8px;
+        }
+        .hourly-cell:first-child {
+          padding-right: 12px;
+        }
       }
 
-      .company-8plus {
-        color: rgba(255, 255, 255, 0.9);
-      }
-
-      .company-5to7 {
-        color: rgba(255, 255, 255, 0.7);
+      @media (min-width: 1200px) {
+        .hourly-cell {
+          font-size: 22px;
+          padding: 10px 16px;
+        }
+        .hourly-cell:first-child {
+          padding-right: 30px;
+        }
+        .switch button {
+          font-size: 22px;
+          padding: 12px 24px;
+        }
       }
 
       .hourly-empty {
         text-align: center;
+        padding: 40px 20px;
         opacity: 0.6;
-        font-size: clamp(16px, 4vh, 24px);
-      }
-
-      /* Очень маленькие экраны */
-      @media (max-width: 360px) {
-        .switch {
-          min-height: 30px;
-        }
-        .switch button {
-          padding: 0 10px;
-        }
-      }
-
-      /* Горизонтальная ориентация */
-      @media (orientation: landscape) and (max-height: 500px) {
-        .switch {
-          height: 10vh;
-          min-height: 30px;
-        }
-        .main-number {
-          font-size: min(35vw, 70vh);
-        }
-        .hourly-cell {
-          padding: 0.5vh 2vw;
-        }
-      }
-
-      /* Большие экраны */
-      @media (min-width: 1200px) {
-        .hourly-cell:first-child {
-          font-size: clamp(16px, 2.5vh, 24px);
-        }
-        .hourly-cell:nth-child(2) {
-          font-size: clamp(14px, 2vh, 20px);
-        }
-        .company-group {
-          font-size: clamp(12px, 1.8vh, 18px);
-        }
+        font-size: clamp(20px, 4vw, 28px);
       }
     </style>
   </head>
@@ -227,7 +173,16 @@
       <button id="tomorrow">Завтра</button>
     </div>
 
-    <div id="mainView">
+    <div
+      id="mainView"
+      style="
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+      "
+    >
       <div class="main-number" id="waiting">--</div>
     </div>
 
@@ -288,8 +243,8 @@
         }
 
         function showTotalView() {
-          mainView.style.display = "flex";
-          hourlyView.style.display = "none";
+          document.getElementById("mainView").style.display = "flex";
+          document.getElementById("hourlyView").style.display = "none";
           currentView = "total";
           if (window.currentData) {
             renderMetrics(
@@ -300,8 +255,8 @@
         }
 
         function parseLargeInfo(largeInfo) {
-          let companies8plus = "–";
-          let companies5to7 = "–";
+          let companies8plus = "";
+          let companies5to7 = "";
 
           if (largeInfo && largeInfo !== "–") {
             const match8plus = largeInfo.match(
@@ -309,7 +264,9 @@
             );
             if (match8plus) {
               const count = parseInt(match8plus[1]);
-              companies8plus = `${count} комп. (8+)`;
+              companies8plus = `${count} компани${getCompanyWordEnding(
+                count
+              )} (8+)`;
             }
 
             const match5to7 = largeInfo.match(
@@ -317,22 +274,43 @@
             );
             if (match5to7) {
               const count = parseInt(match5to7[1]);
-              companies5to7 = `${count} комп. (5–7)`;
+              companies5to7 = `${count} компани${getCompanyWordEnding(
+                count
+              )} (5–7)`;
             }
           }
 
-          return { companies8plus, companies5to7 };
+          if (companies8plus && companies5to7) {
+            return `${companies8plus} / ${companies5to7}`;
+          } else if (companies8plus) {
+            return companies8plus;
+          } else if (companies5to7) {
+            return companies5to7;
+          } else {
+            return "–";
+          }
+        }
+
+        function getCompanyWordEnding(count) {
+          if (count % 10 === 1 && count % 100 !== 11) return "я";
+          if (
+            count % 10 >= 2 &&
+            count % 10 <= 4 &&
+            (count % 100 < 10 || count % 100 >= 20)
+          )
+            return "ии";
+          return "ий";
         }
 
         function showHourlyView(hourlyData) {
-          mainView.style.display = "none";
-          hourlyView.style.display = "flex";
+          document.getElementById("mainView").style.display = "none";
+          document.getElementById("hourlyView").style.display = "flex";
           currentView = "hourly";
           metricsContainer.classList.remove("visible");
 
+          const container = document.getElementById("tableContainer");
           if (!hourlyData || hourlyData.length === 0) {
-            tableContainer.innerHTML =
-              '<div class="hourly-empty">Нет броней</div>';
+            container.innerHTML = '<div class="hourly-empty">Нет броней</div>';
             return;
           }
 
@@ -340,26 +318,23 @@
 
           for (const h of hourlyData) {
             const time = `${h.hour}:00`;
-            const countText = `${h.count} бр.<br>${h.guests}`;
-            const { companies8plus, companies5to7 } = parseLargeInfo(
-              h.largeInfo
-            );
-
-            const largeText = `
-              <span class="company-group company-8plus">${companies8plus}</span>
-              <span class="company-group company-5to7">${companies5to7}</span>
-            `;
+            const word =
+              h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
+            const guestWord =
+              h.guests === 1 ? "гость" : h.guests < 5 ? "гостя" : "гостей";
+            const info = `${h.count} ${word} (${
+              h.guests
+            } ${guestWord})  ${parseLargeInfo(h.largeInfo)}`;
 
             html += `
               <tr class="hourly-row">
                 <td class="hourly-cell">${time}</td>
-                <td class="hourly-cell">${countText}</td>
-                <td class="hourly-cell">${largeText}</td>
+                <td class="hourly-cell">${info}</td>
               </tr>`;
           }
 
           html += "</table>";
-          tableContainer.innerHTML = html;
+          container.innerHTML = html;
         }
 
         mainView.addEventListener("click", () => {
@@ -389,7 +364,7 @@
             window.currentData = null;
             metricsContainer.classList.remove("visible");
             if (currentView === "hourly") {
-              tableContainer.innerHTML =
+              document.getElementById("tableContainer").innerHTML =
                 '<div class="hourly-empty">Ошибка загрузки</div>';
             }
           }
@@ -410,6 +385,16 @@
         setActive("today");
         fetchData();
         setInterval(fetchData, 60000);
+
+        window.addEventListener("resize", () => {
+          if (
+            currentView === "hourly" &&
+            window.currentData &&
+            window.currentData.hourly
+          ) {
+            showHourlyView(window.currentData.hourly);
+          }
+        });
       });
     </script>
   </body>

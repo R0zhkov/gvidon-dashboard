@@ -61,6 +61,7 @@ export default async function handler(req, res) {
     let totalWaiting = 0;
     let bookings5to7 = 0;
     let bookings8plus = 0;
+    const hourly = {};
 
     for (const reserve of data.data.reserves || []) {
       const date = reserve.estimated_time.split("T")[0];
@@ -74,13 +75,31 @@ export default async function handler(req, res) {
         totalWaiting += guests;
         if (guests >= 5 && guests <= 7) bookings5to7++;
         if (guests >= 8) bookings8plus++;
+
+        const hourPart = reserve.estimated_time.split("T")[1];
+        if (hourPart) {
+          const hour = hourPart.substring(0, 2);
+          if (!hourly[hour]) {
+            hourly[hour] = { count: 0, guests: 0 };
+          }
+          hourly[hour].count += 1;
+          hourly[hour].guests += guests;
+        }
       }
     }
+
+    const sortedHours = Object.keys(hourly).sort();
+    const hourlyList = sortedHours.map((h) => ({
+      hour: h,
+      count: hourly[h].count,
+      guests: hourly[h].guests
+    }));
 
     const result = {
       waiting: totalWaiting,
       bookings5to7,
-      bookings8plus
+      bookings8plus,
+      hourly: hourlyList
     };
 
     CACHE[mode] = { data: result, timestamp: now };

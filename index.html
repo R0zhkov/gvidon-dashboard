@@ -74,6 +74,17 @@
         margin-top: 4px;
         white-space: nowrap;
       }
+      #hourlyView {
+        display: none;
+        overflow-y: auto;
+        padding: 0 8px;
+      }
+      .hourly-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 4px 0;
+        font-size: min(4vw, 4vh);
+      }
     </style>
   </head>
   <body>
@@ -82,7 +93,19 @@
       <button id="tomorrow">Завтра</button>
     </div>
 
-    <div class="main-number" id="waiting">--</div>
+    <div
+      id="mainView"
+      style="
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div class="main-number" id="waiting">--</div>
+    </div>
+
+    <div id="hourlyView"></div>
 
     <div class="metrics" id="metricsContainer"></div>
 
@@ -92,8 +115,11 @@
         const tomorrowBtn = document.getElementById("tomorrow");
         const waitingEl = document.getElementById("waiting");
         const metricsContainer = document.getElementById("metricsContainer");
+        const mainView = document.getElementById("mainView");
+        const hourlyView = document.getElementById("hourlyView");
 
         let selected = "today";
+        let currentView = "total"; // "total" or "hourly"
 
         function setActive(btnId) {
           todayBtn.classList.toggle("active", btnId === "today");
@@ -102,7 +128,6 @@
 
         function renderMetrics(bookings5to7, bookings8plus) {
           metricsContainer.innerHTML = "";
-
           if (bookings5to7 > 0) {
             const el = document.createElement("div");
             el.className = "metric";
@@ -112,7 +137,6 @@
             `;
             metricsContainer.appendChild(el);
           }
-
           if (bookings8plus > 0) {
             const el = document.createElement("div");
             el.className = "metric";
@@ -124,15 +148,61 @@
           }
         }
 
+        function showTotalView() {
+          document.getElementById("mainView").style.display = "flex";
+          document.getElementById("hourlyView").style.display = "none";
+          currentView = "total";
+        }
+
+        function showHourlyView(hourlyData) {
+          document.getElementById("mainView").style.display = "none";
+          document.getElementById("hourlyView").style.display = "block";
+          currentView = "hourly";
+
+          const container = document.getElementById("hourlyView");
+          if (!hourlyData || hourlyData.length === 0) {
+            container.innerHTML =
+              '<div style="text-align:center; opacity:0.6;">Нет броней</div>';
+            return;
+          }
+
+          let html = "";
+          for (const h of hourlyData) {
+            html += `<div class="hourly-row"><span>${h.hour}:00</span><span>${h.count} / ${h.guests}</span></div>`;
+          }
+          container.innerHTML = html;
+        }
+
+        mainView.addEventListener("click", () => {
+          if (window.currentData && window.currentData.hourly) {
+            showHourlyView(window.currentData.hourly);
+          }
+        });
+
+        hourlyView.addEventListener("click", () => {
+          showTotalView();
+        });
+
         async function fetchData() {
           try {
             const res = await fetch(`/api/stats?date=${selected}`);
             const data = await res.json();
+
             waitingEl.textContent = data.waiting || 0;
             renderMetrics(data.bookings5to7 || 0, data.bookings8plus || 0);
+
+            window.currentData = data;
+
+            if (currentView === "hourly") {
+              showHourlyView(data.hourly);
+            }
           } catch (err) {
             waitingEl.textContent = "—";
             renderMetrics(0, 0);
+            if (currentView === "hourly") {
+              document.getElementById("hourlyView").innerHTML =
+                '<div style="text-align:center; opacity:0.6;">Ошибка</div>';
+            }
           }
         }
 

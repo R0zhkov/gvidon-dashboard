@@ -156,9 +156,9 @@
 
       @media (min-width: 769px) and (max-width: 1199px) {
         .hourly-cell br {
-          display: none;
+          content: " ";
         }
-        .hourly-cell br::before {
+        .hourly-cell br:after {
           content: " ";
         }
       }
@@ -172,9 +172,9 @@
           padding-right: 30px;
         }
         .hourly-cell br {
-          display: none;
+          content: " ";
         }
-        .hourly-cell br::before {
+        .hourly-cell br:after {
           content: " ";
         }
         .switch button {
@@ -305,7 +305,7 @@
           }
 
           if (companies8plus && companies5to7) {
-            return `${companies8plus}<br>${companies5to7}`;
+            return `${companies8plus} <br>${companies5to7}`;
           } else if (companies8plus) {
             return companies8plus;
           } else if (companies5to7) {
@@ -346,7 +346,7 @@
               h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
             const guestWord =
               h.guests === 1 ? "гость" : h.guests < 5 ? "гостя" : "гостей";
-            const bookingInfo = `${h.count} ${word}<br>(${h.guests} ${guestWord})`;
+            const bookingInfo = `${h.count} ${word} <br>(${h.guests} ${guestWord})`;
             const largeInfo = parseLargeInfo(h.largeInfo);
 
             html += `

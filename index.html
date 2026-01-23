@@ -57,7 +57,6 @@
         text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
       }
 
-      /* Метрики изначально скрыты */
       .metrics {
         display: none;
         justify-content: center;
@@ -93,27 +92,19 @@
         align-items: center;
       }
 
-      .hourly-row {
-        display: flex;
-        align-items: center;
-        padding: 6px 0;
-        font-size: min(4vw, 4vh);
-        gap: 8px;
+      /* ТАБЛИЦА */
+      .hourly-table {
+        display: grid;
+        grid-template-columns: auto 1fr 1fr;
+        gap: 0 16px;
         width: fit-content;
         max-width: 100%;
-        /* Вся строка — по левому краю внутри центрированного блока */
-        justify-content: flex-start;
+        font-size: min(4vw, 4vh);
       }
 
-      .time,
-      .main,
-      .large {
+      .hourly-table > div {
         white-space: nowrap;
-        text-align: left;
-      }
-
-      .separator {
-        opacity: 0.6;
+        padding: 4px 0;
       }
 
       @media (max-width: 768px) {
@@ -123,8 +114,9 @@
         .metric-label {
           font-size: 13px;
         }
-        .hourly-row {
+        .hourly-table {
           font-size: 15px;
+          gap: 0 12px;
         }
       }
     </style>
@@ -193,7 +185,6 @@
             hasContent = true;
           }
 
-          // Показываем метрики ТОЛЬКО если есть данные
           if (hasContent && currentView === "total") {
             metricsContainer.classList.add("visible");
           } else {
@@ -205,7 +196,6 @@
           document.getElementById("mainView").style.display = "flex";
           document.getElementById("hourlyView").style.display = "none";
           currentView = "total";
-          // Перерисуем метрики, чтобы они появились
           if (window.currentData) {
             renderMetrics(
               window.currentData.bookings5to7 || 0,
@@ -228,9 +218,17 @@
           }
 
           const isMobile = window.innerWidth <= 768;
-          let html = "";
+
+          // Заголовки не нужны, но создаём три колонки
+          let times = "";
+          let bookings = "";
+          let larges = "";
 
           for (const h of hourlyData) {
+            // Время
+            times += `<div>${h.hour}:00</div>`;
+
+            // Брони
             let bookingText;
             if (isMobile) {
               bookingText = `${h.count} бр. (${h.guests})`;
@@ -239,23 +237,25 @@
                 h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
               bookingText = `${h.count} ${word} (${h.guests} гостей)`;
             }
+            bookings += `<div>${bookingText}</div>`;
 
+            // Крупные
             let largeText = h.largeInfo;
             if (isMobile && largeText !== "–") {
               largeText = largeText
                 .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
                 .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
             }
-
-            html += `<div class="hourly-row">
-              <span class="time">${h.hour}:00</span>
-              <span class="separator">•</span>
-              <span class="main">${bookingText}</span>
-              <span class="separator">•</span>
-              <span class="large">${largeText}</span>
-            </div>`;
+            larges += `<div>${largeText}</div>`;
           }
-          container.innerHTML = html;
+
+          container.innerHTML = `
+            <div class="hourly-table">
+              ${times}
+              ${bookings}
+              ${larges}
+            </div>
+          `;
         }
 
         mainView.addEventListener("click", () => {

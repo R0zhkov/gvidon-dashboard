@@ -55,43 +55,91 @@
         line-height: 1;
         text-align: center;
         text-shadow: 0 0 16px rgba(255, 255, 255, 0.4);
+        margin-bottom: 8px;
       }
+
+      /* Метрики — увеличены и чуть приподняты */
       .metrics {
         display: flex;
         justify-content: center;
         gap: 24px;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateY(-8px);
+      }
+      .metrics.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px) scale(0.95);
       }
       .metric {
         text-align: center;
       }
       .metric-value {
-        font-size: min(8vw, 8vh);
-        font-weight: 600;
+        font-size: min(12vw, 12vh); /* +150% относительно 8vw */
+        font-weight: 700;
+        line-height: 1;
       }
       .metric-label {
-        font-size: min(2.8vw, 2.8vh);
-        opacity: 0.7;
+        font-size: min(3.2vw, 3.2vh);
+        opacity: 0.75;
         margin-top: 4px;
         white-space: nowrap;
       }
+
+      /* Таблица почасовки */
       #hourlyView {
         display: none;
         overflow-y: auto;
         padding: 0 8px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
       }
+
       .hourly-row {
         display: flex;
-        justify-content: space-between;
-        padding: 4px 0;
+        align-items: center;
+        padding: 6px 0;
         font-size: min(4vw, 4vh);
+        gap: 10px;
+        width: 100%;
+        max-width: 400px;
       }
-      .hourly-row {
-        font-size: min(3.8vw, 3.8vh);
-        padding: 4px 0;
+
+      .time {
+        flex: 0 0 60px;
+        text-align: right;
+        font-weight: 600;
+      }
+
+      .main {
+        flex: 1;
         text-align: center;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+      }
+
+      .large {
+        flex: 0 0 110px;
+        text-align: left;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      @media (max-width: 480px) {
+        .metric-value {
+          font-size: 18px;
+        }
+        .metric-label {
+          font-size: 13px;
+        }
+        .hourly-row {
+          font-size: 15px;
+        }
       }
     </style>
   </head>
@@ -159,12 +207,14 @@
         function showTotalView() {
           document.getElementById("mainView").style.display = "flex";
           document.getElementById("hourlyView").style.display = "none";
+          metricsContainer.classList.remove("hidden");
           currentView = "total";
         }
 
         function showHourlyView(hourlyData) {
           document.getElementById("mainView").style.display = "none";
-          document.getElementById("hourlyView").style.display = "block";
+          document.getElementById("hourlyView").style.display = "flex";
+          metricsContainer.classList.add("hidden");
           currentView = "hourly";
 
           const container = document.getElementById("hourlyView");
@@ -176,14 +226,30 @@
 
           let html = "";
           for (const h of hourlyData) {
-            // Склонение слова "бронь"
-            const bookingWord =
-              h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
-            html += `<div class="hourly-row">${h.hour}:00 • ${h.count} ${bookingWord} (${h.guests} гостей) • ${h.largeInfo}</div>`;
+            // Формат: "3 бр. (12)"
+            const bookingShort = `${h.count} бр. (${h.guests})`;
+
+            // Преобразуем:
+            // "1 компания (8+)" → "8+: 1"
+            // "2 компании (5–7)" → "5–7: 2"
+            let largeShort = h.largeInfo;
+            if (largeShort !== "–") {
+              // Заменяем полные фразы на компактные
+              largeShort = largeShort
+                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "8+: $1")
+                .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "5–7: $1");
+            }
+
+            html += `<div class="hourly-row">
+          <span class="time">${h.hour}:00</span>
+          <span class="main">${bookingShort}</span>
+          <span class="large">${largeShort}</span>
+        </div>`;
           }
           container.innerHTML = html;
         }
 
+        // Переключение кликом
         mainView.addEventListener("click", () => {
           if (window.currentData && window.currentData.hourly) {
             showHourlyView(window.currentData.hourly);
@@ -194,6 +260,7 @@
           showTotalView();
         });
 
+        // Загрузка данных
         async function fetchData() {
           try {
             const res = await fetch(`/api/stats?date=${selected}`);
@@ -217,6 +284,7 @@
           }
         }
 
+        // Обработчики кнопок
         todayBtn.addEventListener("click", () => {
           selected = "today";
           setActive("today");
@@ -229,6 +297,7 @@
           fetchData();
         });
 
+        // Инициализация
         setActive("today");
         fetchData();
         setInterval(fetchData, 60000);

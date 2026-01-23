@@ -130,6 +130,12 @@
         padding-right: 20px;
       }
 
+      .hourly-cell:nth-child(2) {
+        text-align: left;
+        color: rgba(255, 255, 255, 0.85);
+        padding-right: 20px;
+      }
+
       .hourly-cell:last-child {
         text-align: left;
         color: rgba(255, 255, 255, 0.85);
@@ -322,14 +328,14 @@
               h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
             const guestWord =
               h.guests === 1 ? "гость" : h.guests < 5 ? "гостя" : "гостей";
-            const info = `${h.count} ${word} (${
-              h.guests
-            } ${guestWord})  ${parseLargeInfo(h.largeInfo)}`;
+            const bookingInfo = `${h.count} ${word} (${h.guests} ${guestWord})`;
+            const largeInfo = parseLargeInfo(h.largeInfo);
 
             html += `
               <tr class="hourly-row">
                 <td class="hourly-cell">${time}</td>
-                <td class="hourly-cell">${info}</td>
+                <td class="hourly-cell">${bookingInfo}</td>
+                <td class="hourly-cell">${largeInfo}</td>
               </tr>`;
           }
 

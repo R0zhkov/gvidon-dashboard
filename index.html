@@ -35,10 +35,11 @@
         display: flex;
         gap: 8px;
         justify-content: center;
+        margin-bottom: 10px;
       }
       .switch button {
-        padding: 6px 12px;
-        font-size: 14px;
+        padding: 10px 20px;
+        font-size: 18px;
         background: #333;
         color: #fff;
         border: 1px solid #666;
@@ -50,7 +51,7 @@
         border-color: #999;
       }
       .main-number {
-        font-size: min(50vw, 50vh);
+        font-size: min(55vw, 55vh);
         font-weight: 800;
         line-height: 1;
         text-align: center;
@@ -70,12 +71,12 @@
         text-align: center;
       }
       .metric-value {
-        font-size: min(12vw, 12vh);
+        font-size: min(15vw, 15vh);
         font-weight: 700;
         line-height: 1;
       }
       .metric-label {
-        font-size: min(3.2vw, 3.2vh);
+        font-size: min(4vw, 4vh);
         opacity: 0.75;
         margin-top: 4px;
         white-space: nowrap;
@@ -87,12 +88,14 @@
         padding: 8px;
         flex: 1;
         width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       /* НОВЫЕ СТИЛИ ДЛЯ ТАБЛИЦЫ */
       .hourly-table {
-        width: 100%;
-        max-width: 1200px;
+        width: auto;
         margin: 0 auto;
         border-collapse: collapse;
       }
@@ -103,71 +106,140 @@
 
       .hourly-cell {
         display: table-cell;
-        padding: 8px 12px;
+        padding: 12px 20px;
         vertical-align: middle;
-        font-size: min(3.8vw, 18px);
+        font-size: min(4.5vw, 30px);
         line-height: 1.2;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
       }
 
       .hourly-cell:first-child {
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.9);
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
         white-space: nowrap;
-        padding-left: 0;
+        text-align: right;
+        padding-right: 30px;
+        font-size: min(5vw, 32px);
       }
 
       .hourly-cell:nth-child(2) {
         text-align: center;
-        min-width: 120px;
+        min-width: 180px;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.9);
       }
 
       .hourly-cell:last-child {
         text-align: left;
-        padding-right: 0;
+        padding-left: 30px;
+        min-width: 220px;
+      }
+
+      .company-group {
+        display: block;
+        margin: 2px 0;
+        font-size: min(4vw, 26px);
+        line-height: 1.3;
+      }
+
+      .company-8plus {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .company-5to7 {
+        color: rgba(255, 255, 255, 0.8);
       }
 
       /* Адаптивность для мобильных */
       @media (max-width: 768px) {
         .metric-value {
-          font-size: 18px;
+          font-size: 22px;
         }
         .metric-label {
-          font-size: 13px;
-        }
-
-        .hourly-table {
-          font-size: 14px;
+          font-size: 16px;
         }
 
         .hourly-cell {
-          padding: 6px 8px;
-          font-size: 14px;
+          padding: 10px 12px;
+          font-size: 22px;
+        }
+
+        .hourly-cell:first-child {
+          font-size: 24px;
+          padding-right: 20px;
         }
 
         .hourly-cell:nth-child(2) {
-          min-width: 100px;
+          min-width: 140px;
+          font-size: 20px;
         }
 
-        /* Компактный вид для мобильных */
-        .mobile-compact {
-          display: none;
+        .hourly-cell:last-child {
+          padding-left: 20px;
+          min-width: 180px;
+        }
+
+        .company-group {
+          font-size: 18px;
         }
       }
 
       /* Для десктопов */
       @media (min-width: 769px) {
         .hourly-cell {
-          font-size: 16px;
-          padding: 10px 16px;
-        }
-
-        .hourly-cell:nth-child(2) {
-          min-width: 150px;
+          font-size: 28px;
+          padding: 14px 25px;
         }
 
         .hourly-cell:first-child {
-          width: 100px;
+          font-size: 32px;
+          padding-right: 40px;
+        }
+
+        .hourly-cell:nth-child(2) {
+          min-width: 220px;
+          font-size: 26px;
+        }
+
+        .hourly-cell:last-child {
+          min-width: 280px;
+          padding-left: 40px;
+        }
+
+        .company-group {
+          font-size: 24px;
+        }
+      }
+
+      /* Для больших экранов (dashboard на стене) */
+      @media (min-width: 1200px) {
+        .hourly-cell {
+          font-size: 32px;
+          padding: 16px 30px;
+        }
+
+        .hourly-cell:first-child {
+          font-size: 36px;
+          padding-right: 50px;
+        }
+
+        .hourly-cell:nth-child(2) {
+          min-width: 250px;
+          font-size: 30px;
+        }
+
+        .hourly-cell:last-child {
+          min-width: 320px;
+          padding-left: 50px;
+        }
+
+        .company-group {
+          font-size: 28px;
+        }
+
+        .switch button {
+          font-size: 22px;
+          padding: 12px 24px;
         }
       }
 
@@ -176,29 +248,17 @@
         text-align: center;
         padding: 40px 20px;
         opacity: 0.6;
-        font-size: 16px;
+        font-size: min(5vw, 32px);
       }
 
-      /* Заголовки колонок */
-      .hourly-header {
-        display: table-header-group;
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      .hourly-header .hourly-cell {
-        font-weight: 600;
-        font-size: min(3vw, 14px);
-        color: rgba(255, 255, 255, 0.7);
-        padding: 12px 12px;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
-      }
-
-      .hourly-header .hourly-cell:first-child {
-        padding-left: 0;
-      }
-
-      .hourly-header .hourly-cell:last-child {
-        padding-right: 0;
+      /* Для центрирования всей таблицы */
+      .table-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        width: 100%;
+        overflow-x: auto;
       }
     </style>
   </head>
@@ -220,7 +280,9 @@
       <div class="main-number" id="waiting">--</div>
     </div>
 
-    <div id="hourlyView"></div>
+    <div id="hourlyView">
+      <div class="table-container" id="tableContainer"></div>
+    </div>
 
     <div class="metrics" id="metricsContainer"></div>
 
@@ -232,6 +294,7 @@
         const metricsContainer = document.getElementById("metricsContainer");
         const mainView = document.getElementById("mainView");
         const hourlyView = document.getElementById("hourlyView");
+        const tableContainer = document.getElementById("tableContainer");
 
         let selected = "today";
         let currentView = "total";
@@ -285,29 +348,62 @@
           }
         }
 
+        function parseLargeInfo(largeInfo) {
+          let companies8plus = "–";
+          let companies5to7 = "–";
+
+          if (largeInfo && largeInfo !== "–") {
+            // Ищем компании 8+
+            const match8plus = largeInfo.match(
+              /(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/
+            );
+            if (match8plus) {
+              const count = parseInt(match8plus[1]);
+              companies8plus = `${count} компания${getCompanyWordEnding(
+                count
+              )} (8+)`;
+            }
+
+            // Ищем компании 5-7
+            const match5to7 = largeInfo.match(
+              /(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/
+            );
+            if (match5to7) {
+              const count = parseInt(match5to7[1]);
+              companies5to7 = `${count} компания${getCompanyWordEnding(
+                count
+              )} (5–7)`;
+            }
+          }
+
+          return { companies8plus, companies5to7 };
+        }
+
+        function getCompanyWordEnding(count) {
+          if (count % 10 === 1 && count % 100 !== 11) return "я";
+          if (
+            count % 10 >= 2 &&
+            count % 10 <= 4 &&
+            (count % 100 < 10 || count % 100 >= 20)
+          )
+            return "ии";
+          return "ий";
+        }
+
         function showHourlyView(hourlyData) {
           document.getElementById("mainView").style.display = "none";
-          document.getElementById("hourlyView").style.display = "block";
+          document.getElementById("hourlyView").style.display = "flex";
           currentView = "hourly";
           metricsContainer.classList.remove("visible");
 
-          const container = document.getElementById("hourlyView");
+          const container = document.getElementById("tableContainer");
           if (!hourlyData || hourlyData.length === 0) {
             container.innerHTML = '<div class="hourly-empty">Нет броней</div>';
             return;
           }
 
           const isMobile = window.innerWidth <= 768;
-          let html = `
-            <table class="hourly-table">
-              <thead class="hourly-header">
-                <tr>
-                  <td class="hourly-cell">Время</td>
-                  <td class="hourly-cell">Количество</td>
-                  <td class="hourly-cell">Большие компании</td>
-                </tr>
-              </thead>
-              <tbody>`;
+          let html = `<table class="hourly-table">`;
 
           for (const h of hourlyData) {
             // Форматирование времени
@@ -316,25 +412,23 @@
             // Форматирование количества
             let countText;
             if (isMobile) {
-              countText = `${h.count} бр. (${h.guests})`;
+              countText = `${h.count} бр.<br>(${h.guests})`;
             } else {
               const word =
                 h.count === 1 ? "бронь" : h.count < 5 ? "брони" : "броней";
-              countText = `${h.count} ${word}<br><span style="opacity:0.7">${h.guests} гостей</span>`;
+              countText = `${h.count} ${word}<br>${h.guests} гостей`;
             }
 
-            // Форматирование больших компаний
-            let largeText = h.largeInfo;
-            if (isMobile) {
-              if (largeText !== "–") {
-                largeText = largeText
-                  .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(8\+\)/g, "$1 (8+)")
-                  .replace(/(\d+)\s+компан(?:ия|ии|ий)\s+\(5–7\)/g, "$1 (5–7)");
-              }
-            } else {
-              // Для десктопов можно показывать полный текст
-              largeText = largeText.replace(/\(/g, "<br>(");
-            }
+            // Парсим информацию о больших компаниях
+            const { companies8plus, companies5to7 } = parseLargeInfo(
+              h.largeInfo
+            );
+
+            // Форматирование больших компаний в две строки
+            const largeText = `
+              <span class="company-group company-8plus">${companies8plus}</span>
+              <span class="company-group company-5to7">${companies5to7}</span>
+            `;
 
             html += `
               <tr class="hourly-row">
@@ -344,7 +438,7 @@
               </tr>`;
           }
 
-          html += `</tbody></table>`;
+          html += `</table>`;
           container.innerHTML = html;
         }
 
@@ -375,7 +469,7 @@
             window.currentData = null;
             metricsContainer.classList.remove("visible");
             if (currentView === "hourly") {
-              document.getElementById("hourlyView").innerHTML =
+              document.getElementById("tableContainer").innerHTML =
                 '<div class="hourly-empty">Ошибка загрузки</div>';
             }
           }

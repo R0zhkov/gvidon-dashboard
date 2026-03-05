@@ -1,11 +1,7 @@
 const LOGIN = process.env.MY_SITE_LOGIN;
 const PASSWORD = process.env.MY_SITE_PASSWORD;
 const POINT_ID = process.env.POINT_ID || "125014";
-
 const API_HOST = `https://cabinet3.clientomer.ru/${POINT_ID}`;
-
-const CACHE = {};
-const CACHE_TTL = 2 * 60 * 1000;
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -13,13 +9,9 @@ export default async function handler(req, res) {
   }
 
   const mode = req.query.date || "today";
-  const now = Date.now();
-
-  if (CACHE[mode] && now - CACHE[mode].timestamp < CACHE_TTL) {
-    return res.status(200).json(CACHE[mode].data);
-  }
 
   try {
+    // Авторизация
     const loginRes = await fetch(`${API_HOST}/jlogin`, {
       method: "POST",
       headers: {
@@ -36,6 +28,7 @@ export default async function handler(req, res) {
     const cookie = loginRes.headers.get("set-cookie")?.split(";")[0];
     if (!cookie) throw new Error("Не получена кука сессии");
 
+    // Запрос данных
     const timestamp = Date.now();
     const apiUrl = `${API_HOST}/reserves.api.guestsreserves?timestamp=${timestamp}`;
     const apiRes = await fetch(apiUrl, {
@@ -49,20 +42,13 @@ export default async function handler(req, res) {
 
     const contentType = apiRes.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
-      const text = await apiRes.text();
-      console.error(
-        "Non-JSON response from Clientomer:",
-        text.substring(0, 300)
-      );
-      throw new Error(
-        "Сервер вернул не JSON (возможно, неверные данные или сессия)"
-      );
+      throw new Error("Сервер вернул не JSON");
     }
 
     const data = await apiRes.json();
     if (data.status !== "success") throw new Error("API вернул ошибку");
 
-    // 3. Агрегация данных
+    // Агрегация
     const nowMSK = new Date(Date.now() + 3 * 60 * 60 * 1000);
     const targetDate = new Date(nowMSK);
     if (mode === "tomorrow") {
@@ -153,7 +139,6 @@ export default async function handler(req, res) {
       hourly: hourlyList
     };
 
-    CACHE[mode] = { result, timestamp: now };
     res.status(200).json(result);
   } catch (err) {
     console.error("API error:", err.message);

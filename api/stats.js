@@ -1,7 +1,7 @@
 const LOGIN = process.env.MY_SITE_LOGIN;
 const PASSWORD = process.env.MY_SITE_PASSWORD;
 const POINT_ID = process.env.POINT_ID || "125014";
-const API_HOST = `https://cabinet3.clientomer.ru/${POINT_ID}`;
+const API_HOST = `https://cabinet4.clientomer.ru/${POINT_ID}`;
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
